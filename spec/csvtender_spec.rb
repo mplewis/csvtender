@@ -8,9 +8,6 @@ describe CSVtender do
      [4, 5, 6]]
   end
 
-  let(:x2) { -> (set) { set.map { |cell| cell * 2 } } }
-  let(:small_sum) { -> (set) { set.inject(:+) < 8 } }
-
   describe '#show' do
     it 'shows rows' do
       expect(subject.rows.show).to eql table
@@ -34,36 +31,74 @@ describe CSVtender do
   end
 
   describe '#map' do
+    let(:double) { -> (set) { set.map { |cell| cell * 2 } } }
+
     it 'maps over rows' do
-      expect(subject.rows.map(x2).show).to eql [[2, 4, 6],
-                                                [8, 10, 12]]
+      expect(subject.map(double).show).to eql [[2, 4, 6],
+                                               [8, 10, 12]]
     end
 
     it 'maps over columns' do
-      expect(subject.cols.map(x2).show).to eql [[2, 8],
-                                                [4, 10],
-                                                [6, 12]]
+      expect(subject.cols.map(double).show).to eql [[2, 8],
+                                                    [4, 10],
+                                                    [6, 12]]
     end
   end
 
-  describe '#select' do
-    it 'maps over rows' do
-      expect(subject.rows.select(small_sum).show).to eql [[1, 2, 3]]
+  context 'filtering' do
+    let(:small_sum) { -> (set) { set.inject(:+) < 8 } }
+
+    describe '#select' do
+      it 'selects rows' do
+        expect(subject.select(small_sum).show).to eql [[1, 2, 3]]
+      end
+
+      it 'selects columns' do
+        expect(subject.cols.select(small_sum).show).to eql [[1, 4],
+                                                            [2, 5]]
+      end
     end
 
-    it 'maps over columns' do
-      expect(subject.cols.select(small_sum).show).to eql [[1, 4],
-                                                          [2, 5]]
+    describe '#reject' do
+      it 'rejects rows' do
+        expect(subject.reject(small_sum).show).to eql [[4, 5, 6]]
+      end
+
+      it 'rejects columns' do
+        expect(subject.cols.reject(small_sum).show).to eql [[3, 6]]
+      end
     end
   end
 
-  describe '#reject' do
-    it 'maps over rows' do
-      expect(subject.rows.reject(small_sum).show).to eql [[4, 5, 6]]
+  context 'with a table with headers' do
+    let(:table) do
+      [['name', 'loc'],
+       ['Matt', 'DEN'],
+       ['Anna', 'SFO']]
     end
 
-    it 'maps over columns' do
-      expect(subject.cols.reject(small_sum).show).to eql [[3, 6]]
+    let(:in_denver) { -> (row) { row['loc'] == 'DEN' } }
+
+    describe '#with_headers' do
+      it 'adds headers' do
+        expect(subject.with_headers.show).to eql [{ 'name' => 'Matt', 'loc' => 'DEN' },
+                                                  { 'name' => 'Anna', 'loc' => 'SFO' }]
+      end
+
+      it 'is chainable' do
+        expect(subject.with_headers.select(in_denver).show).to eql [{ 'name' => 'Matt', 'loc' => 'DEN' }]
+      end
+    end
+
+    describe '#without_headers' do
+      it 'reverses #with_headers' do
+        expect(subject.rows.with_headers.without_headers.show).to eql table
+      end
+
+      it 'is chainable' do
+        expect(subject.with_headers.select(in_denver).without_headers.show).to eql [['name', 'loc'],
+                                                                                    ['Matt', 'DEN']]
+      end
     end
   end
 end

@@ -2,6 +2,7 @@ class CSVtender
   def initialize(table = [])
     @table = table
     @orientation = :standard
+    @headers = false
   end
 
   def rows
@@ -34,6 +35,25 @@ class CSVtender
 
   def reject(mutator = nil)
     delegate :reject!, mutator
+  end
+
+  def with_headers
+    return if @headers
+    oriented do
+      @headers = true
+      header, *rows = @table
+      @table = rows.map! { |row| header.zip(row).to_h }
+    end
+    self
+  end
+
+  def without_headers
+    return unless @headers
+    @headers = false
+    header = @table.first.keys
+    without_keys = @table.map(&:values)
+    @table = [header].concat without_keys
+    self
   end
 
   private
