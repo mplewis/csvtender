@@ -5,6 +5,19 @@ class CSVtender
     @headers = false
   end
 
+  def to_s
+    s = @table.count != 1 ? 's' : ''
+    meta = [
+      "#{@table.count} row#{s}",
+      @headers ? 'headers' : nil
+    ].compact.join ', '
+    "\#<CSVtender: #{meta}>"
+  end
+
+  def inspect
+    @table
+  end
+
   def rows
     @orientation = :standard
     self
