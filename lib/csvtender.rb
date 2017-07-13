@@ -38,16 +38,16 @@ class CSVtender
     show.count
   end
 
-  def map(mutator = nil)
-    delegate :map!, mutator
+  def map(mutator = nil, &block)
+    delegate :map!, mutator, &block
   end
 
-  def select(mutator = nil)
-    delegate :select!, mutator
+  def select(mutator = nil, &block)
+    delegate :select!, mutator, &block
   end
 
-  def reject(mutator = nil)
-    delegate :reject!, mutator
+  def reject(mutator = nil, &block)
+    delegate :reject!, mutator, &block
   end
 
   def with_headers
@@ -86,7 +86,7 @@ class CSVtender
     @table = head.zip(*tail)
   end
 
-  def delegate(method, mutator = nil)
+  def delegate(method, mutator = nil, &block)
     raise ArgumentError, 'must provide mutator or block' unless block_given? || mutator
     block ||= -> (item) { mutator.call item }
     oriented { @table.send(method, &block) }

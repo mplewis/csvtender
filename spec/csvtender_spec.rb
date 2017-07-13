@@ -101,4 +101,16 @@ describe CSVtender do
       end
     end
   end
+
+  describe 'private methods' do
+    describe '#delegate' do
+      it 'works with blocks' do
+        subject.send(:delegate, :select!) do |row|
+          row.include? 1
+        end
+
+        expect(subject.show).to eql [[1, 2, 3]]
+      end
+    end
+  end
 end
