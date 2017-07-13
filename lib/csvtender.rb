@@ -51,7 +51,7 @@ class CSVtender
   end
 
   def with_headers
-    return if @headers
+    return self if @headers
     oriented do
       @headers = true
       header, *rows = @table
@@ -61,7 +61,7 @@ class CSVtender
   end
 
   def without_headers
-    return unless @headers
+    return self unless @headers
     @headers = false
     header = @table.first.keys
     without_keys = @table.map(&:values)

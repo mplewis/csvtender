@@ -88,6 +88,10 @@ describe CSVtender do
       it 'is chainable' do
         expect(subject.with_headers.select(in_denver).show).to eql [{ 'name' => 'Matt', 'loc' => 'DEN' }]
       end
+
+      it 'is safe to call twice' do
+        expect(subject.with_headers.with_headers).to_not be nil
+      end
     end
 
     describe '#without_headers' do
@@ -98,6 +102,10 @@ describe CSVtender do
       it 'is chainable' do
         expect(subject.with_headers.select(in_denver).without_headers.show).to eql [['name', 'loc'],
                                                                                     ['Matt', 'DEN']]
+      end
+
+      it 'is safe to call twice' do
+        expect(subject.without_headers.without_headers).to_not be nil
       end
     end
   end
